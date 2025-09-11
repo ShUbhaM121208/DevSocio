@@ -1,19 +1,29 @@
 const express = require('express');
 
 const app = express();
-const {adminAuth,userAuth} = require('./middlewares/auth')
 
-app.use("/admin",adminAuth);
-app.post('/user/login',(res,req)=>{
-    res.send('hello');
+const connectDB = require('./config/database');
 
-});
-app.get('/user/data',userAuth,(req,res) => {
-    res.send('user data send');
-})
-app.get('/admin/getAllData',(req,res)=>{
-    res.send("all data send");
-})
+connectDB()
+    .then(() =>{console.log("Database connected");
+        app.listen(3000, () => {
+            console.log('Server is running on port 3000');
+        });
+    })
+    .catch((err) => console.log("Database connection error:", err));
+// const {adminAuth,userAuth} = require('./middlewares/auth')
+
+// app.use("/admin",adminAuth);
+// app.post('/user/login',(res,req)=>{
+//     res.send('hello');
+
+// });
+// app.get('/user/data',userAuth,(req,res) => {
+//     res.send('user data send');
+// })
+// app.get('/admin/getAllData',(req,res)=>{
+//     res.send("all data send"); 
+// })
 
 // app.use('/user',(req,res,next) =>{
 //     console.log("111");
@@ -42,6 +52,6 @@ app.get('/admin/getAllData',(req,res)=>{
 // });
 
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
+// app.listen(3000, () => {
+//     console.log('Server is running on port 3000');
+// });
