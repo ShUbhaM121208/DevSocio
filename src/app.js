@@ -1,8 +1,20 @@
 const express = require('express');
 
 const app = express();
+const User = require('./models/user');
 
 const connectDB = require('./config/database');
+
+app.post("/signup",async(req,res) =>{
+    const user = new User ({
+        firstName : "shubham",
+        lastName : "mishra",
+        emailId : "shubahm@123",
+        password : "12345",})
+    await user.save();
+    res.send("user signed up");
+
+});
 
 connectDB()
     .then(() =>{console.log("Database connected");
