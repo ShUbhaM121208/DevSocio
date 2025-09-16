@@ -4,17 +4,40 @@ const app = express();
 const User = require('./models/user');
 
 const connectDB = require('./config/database');
+app.use(express.json());
 
 app.post("/signup",async(req,res) =>{
-    const user = new User ({
-        firstName : "shubham",
-        lastName : "mishra",
-        emailId : "shubahm@123",
-        password : "12345",})
+    const user = new User(req.body);
     await user.save();
     res.send("user signed up");
 
 });
+app.get("/user",async (req,res)=>{
+    const userEmail = req.body.emailId;
+    try{
+        const users = await User.find({emailId : userEmail});
+        if (users.length === 0) {
+            return res.status(404).send("User not found");
+        }
+        else{
+            return res.status(200).send(users);
+        }
+        
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+app.get("/feed",async(req,res)=>{
+    try{
+        const users = await User.find();
+        res.send(users);
+    }
+    catch(err){
+        console.log(err);   
+    }
+    
+})
 
 connectDB()
     .then(() =>{console.log("Database connected");
@@ -23,7 +46,6 @@ connectDB()
         });
     })
     .catch((err) => console.log("Database connection error:", err));
-// const {adminAuth,userAuth} = require('./middlewares/auth')
 
 // app.use("/admin",adminAuth);
 // app.post('/user/login',(res,req)=>{
