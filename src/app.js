@@ -36,7 +36,34 @@ app.get("/feed",async(req,res)=>{
     catch(err){
         console.log(err);   
     }
-    
+     
+})
+app.delete("/user",async(res,req)=>{
+    const userId = req.body.userId;
+    try{
+        const user = await User.findByIdAndDelete(userId);
+        res.send("user deleted");
+
+
+    }
+    catch(err){
+        console.log(err);
+    }
+
+})
+
+app.patch("/user",async(res,req)=>{
+    const userId = req.body.userId;
+    const data  = req.body;
+    try{
+        await User.findByIdAndUpdate({_id:userId},data);
+        res.send("user updated");
+    }
+    catch(err){
+        console.log(err);
+    }
+
+
 })
 
 connectDB()
