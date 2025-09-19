@@ -52,19 +52,23 @@ app.delete("/user",async(res,req)=>{
 
 })
 
-app.patch("/user",async(res,req)=>{
-    const userId = req.body.userId;
-    const data  = req.body;
-    try{
-        await User.findByIdAndUpdate({_id:userId},data);
-        res.send("user updated");
-    }
-    catch(err){
-        console.log(err);
-    }
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
 
+  try {
+    await User.findByIdAndUpdate(
+      { _id: userId }, 
+      data, 
+      { new: true, runValidators: true }  
+    );
+    res.send("user updated");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating user");
+  }
+});
 
-})
 
 connectDB()
     .then(() =>{console.log("Database connected");
