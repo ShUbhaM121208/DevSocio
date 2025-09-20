@@ -52,12 +52,25 @@ app.delete("/user",async(res,req)=>{
 
 })
 
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
 
+ 
+
   try {
-    await User.findByIdAndUpdate(
+    const allowedUpdates = ["firstName", "lastName", "emailId", "password", "age"];
+    const isUpdateAloowed = Object.keys(data).every((k)=>
+    allowedUpdates.includes(k)
+
+);
+    if (!isUpdateAloowed) {
+    throw new Error("Invalid updates!");
+    }
+    if (data?.skills?.length > 10) {
+        throw new Error("Cannot add more than 5 skills");
+    }
+    const user = await User.findByIdAndUpdate(
       { _id: userId }, 
       data, 
       { new: true, runValidators: true }  

@@ -46,11 +46,11 @@ const userSchema = mongoose.Schema({
         default : "Hey there! I am using DevTinder",
     },
     skills:{
-        type:[string],
+        type:[String],
     },
     
 },{
     timestamps : true,
 });
 const User = mongoose.model('User',userSchema);
-module.exports = User;
+module.exports = User; 
