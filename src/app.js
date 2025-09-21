@@ -3,9 +3,13 @@ const express = require('express');
 const app = express();
 const User = require('./models/user');
 const {validateSignUpData} = require('./utlis/validation');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const connectDB = require('./config/database');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+app.use(cookieParser());
 app.use(express.json());
+const{userAuth} = require('./middlewares/auth');
 
 app.post("/signup",async(req,res) =>{
     //  Validation
@@ -36,6 +40,58 @@ const passwordHash = await bcrypt.hash(password,10);
     }
 
 });
+app.post("/login",async(req,res)=>{
+    try{
+        const {emailId,password} = req.body;
+        const user = await User.findOne({emailId : emailId});
+        if (!user){
+            throw new Error("user not found");
+        }
+        const isPasswordMatch = await bcrypt.compare(password,user.password);
+        if (isPasswordMatch){
+            // create a jwt Token
+            const token = await jwt.sign({_id : user._id}, "mysecretkey");
+            // console.log(token);
+
+
+            // add the token to cookie and send the response back to the user 
+            res.cookie("token",token);
+            res.status(200).send("user logged in successfully");
+        }
+        else{
+            throw new Error("invalid credentials");
+        }
+        
+    }
+    catch(err){
+            res.status(400).send("Error logging in user");
+
+    }
+});
+app.get("/profile",userAuth,  async (req, res) => {
+    try {
+        const cookies = req.cookies;  // correct
+        const { token } = cookies || {}; // safe destructuring
+
+        if (!token) {
+            return res.status(401).send("No token found");
+        }
+
+        const decoded = jwt.verify(token, "mysecretkey");  // verify token
+        const { _id } = decoded;
+
+        const user = await User.findById(_id);  // fetch user
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.status(200).send(user);  // send user profile
+    } catch (err) {
+        console.error(err);
+        res.status(401).send("Unauthenticated");
+    }
+});
+
 app.get("/user",async (req,res)=>{
     const userEmail = req.body.emailId;
     try{
