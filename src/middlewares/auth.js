@@ -11,12 +11,15 @@ const userAuth = async(req,res,next) =>{
     if(!token){
         return res.status(401).send("No token found");
     }
-    const decodedobj = jwt.verify(token,"mysecretkey");
+    const decodedobj = jwt.verify(token,"mysecretkey",{
+        expireIn : "1h",
+    });
     const {_id} = decodedobj;
     const user = await User.findById(_id);
     if(!user){
         return res.status(404).send("user not found");
     }
+    req.user = user;
     next();
 }
 catch(err){
